@@ -85,7 +85,7 @@
 
         .login-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(255, 107, 53, 0.4);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
         }
 
         .login-btn:active {
@@ -684,8 +684,8 @@
 
     <script>
         // Google Sheets API configuration
-        const GOOGLE_SHEET_ID = '1wdjqjct9P21WEdT8rDeycqRAKAQ3wNBf2EexxehT8TY'; // Google Sheet ID ni kiriting
-        const GOOGLE_API_KEY = 'AIzaSyDS7cdRSZGEvI4q7con9unGAb8lzlDPVt4'; // Google API Key ni kiriting
+        const GOOGLE_SHEET_ID = '1Poq8yKIPyHyE-BV_-ZXbmtPmrkx_cfmUvJmsrKgelyQ'; // Google Sheet ID ni kiriting
+        const GOOGLE_API_KEY = 'AIzaSyC13vv50FrDi497SsIMMxbBRcklAcwU7dw'; // Google API Key ni kiriting
         const SHEET_NAME = 'Sheet1'; // Sheet nomini kiriting
         const ANNOUNCEMENTS_SHEET_NAME = 'Announcements';
         const SOCIAL_PAGES_SHEET_NAME = 'SocialPages';
@@ -833,13 +833,17 @@
 
         // Load content from Google Sheets
         async function loadContentFromSheet() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/${SHEET_NAME}?key=${GOOGLE_API_KEY}`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/'${SHEET_NAME}'?key=${GOOGLE_API_KEY}`;
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 const rows = data.values;
 
                 // Assuming the first row contains headers
+                if (!rows || rows.length === 0) {
+                    console.warn('No data found in Sheet1');
+                    return;
+                }
                 const headers = rows[0];
                 const content = rows.slice(1).map(row => {
                     let item = {};
@@ -856,9 +860,9 @@
                         new: content.filter(item => item.category === 'multfilm' && item.section === 'new')
                     },
                     anime: {
-                        trending: content.filter(item => item.category === 'anime' && item.section === 'trending'),
-                        new: content.filter(item => item.category === 'anime' && item.section === 'new')
-                    }
+                        trending: content.filter(item => item.category === 'anime' && item.section === 'trending')
+                    },
+                         new: content.filter(item => item.category === 'anime' && item.section === 'new')
                 };
 
                 allContent = [];
@@ -875,13 +879,18 @@
             }
         }
 
-        // Load announcements from Google Sheets
+                // Load announcements from Google Sheets
         async function loadAnnouncementsFromSheet() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/${ANNOUNCEMENTS_SHEET_NAME}?key=${GOOGLE_API_KEY}`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/'${ANNOUNCEMENTS_SHEET_NAME}'?key=${GOOGLE_API_KEY}`;
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 const rows = data.values;
+
+                 if (!rows || rows.length === 0) {
+                      console.warn('No data found in Announcements sheet');
+                      return;
+                 }
 
                 const headers = rows[0];
                 const announcements = rows.slice(1).map(row => {
@@ -899,13 +908,18 @@
             }
         }
 
-                // Load social pages from Google Sheets
+        // Load social pages from Google Sheets
         async function loadSocialPagesFromSheet() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/${SOCIAL_PAGES_SHEET_NAME}?key=${GOOGLE_API_KEY}`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/'${SOCIAL_PAGES_SHEET_NAME}'?key=${GOOGLE_API_KEY}`;
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 const rows = data.values;
+
+                 if (!rows || rows.length === 0) {
+                      console.warn('No data found in SocialPages sheet');
+                      return;
+                 }
 
                 const headers = rows[0];
                 const socialPages = rows.slice(1).map(row => {
@@ -925,11 +939,16 @@
 
         // Load support info from Google Sheets
         async function loadSupportInfoFromSheet() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/${SUPPORT_SHEET_NAME}?key=${GOOGLE_API_KEY}`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/'${SUPPORT_SHEET_NAME}'?key=${GOOGLE_API_KEY}`;
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 const rows = data.values;
+
+                 if (!rows || rows.length === 0) {
+                      console.warn('No data found in Support sheet');
+                      return;
+                 }
 
                 const headers = rows[0];
                 const supportInfo = rows.slice(1).map(row => {
@@ -950,36 +969,48 @@
         // Display announcements
         function displayAnnouncements(announcements) {
             const container = document.getElementById('announcementsContainer');
-            container.innerHTML = announcements.map(item => `
-                <div class="announcement-item">
-                    <div class="announcement-title">${item.title}</div>
-                    <div class="announcement-text">${item.text}</div>
-                    ${item.imageUrl ? `<img src="${item.imageUrl}" alt="Announcement Image" style="max-width: 100%;">` : ''}
-                    ${item.linkUrl ? `<a href="${item.linkUrl}" target="_blank">Batafsil...</a>` : ''}
-                </div>
-            `).join('');
+             if (announcements && announcements.length > 0) {
+                  container.innerHTML = announcements.map(item => `
+                       <div class="announcement-item">
+                           <div class="announcement-title">${item.title}</div>
+                           <div class="announcement-text">${item.text}</div>
+                           ${item.imageUrl ? `<img src="${item.imageUrl}" alt="Announcement Image" style="max-width: 100%;">` : ''}
+                           ${item.linkUrl ? `<a href="${item.linkUrl}" target="_blank">Batafsil...</a>` : ''}
+                       </div>
+                  `).join('');
+             } else {
+                  container.innerHTML = '<p>E\'lonlar topilmadi.</p>';
+             }
         }
 
         // Display social pages
         function displaySocialPages(socialPages) {
             const menu = document.getElementById('socialPagesMenu');
-            menu.innerHTML = socialPages.map(item => `
-                <div class="profile-menu-item" onclick="window.open('${item.linkUrl}', '_blank')">
-                    <span class="icon">🌐</span>
-                    ${item.title}
-                </div>
-            `).join('');
+             if (socialPages && socialPages.length > 0) {
+                  menu.innerHTML = socialPages.map(item => `
+                       <div class="profile-menu-item" onclick="window.open('${item.linkUrl}', '_blank')">
+                           <span class="icon">🌐</span>
+                           ${item.title}
+                       </div>
+                  `).join('');
+             } else {
+                  menu.innerHTML = '<p>Ijtimoiy sahifalar topilmadi.</p>';
+             }
         }
 
         // Display support info
         function displaySupportInfo(supportInfo) {
             const menu = document.getElementById('supportMenu');
-            menu.innerHTML = supportInfo.map(item => `
-                <div class="profile-menu-item" onclick="window.open('${item.linkUrl}', '_blank')">
-                    <span class="icon">🛠️</span>
-                    ${item.title}
-                </div>
-            `).join('');
+             if (supportInfo && supportInfo.length > 0) {
+                  menu.innerHTML = supportInfo.map(item => `
+                       <div class="profile-menu-item" onclick="window.open('${item.linkUrl}', '_blank')">
+                           <span class="icon">🛠️</span>
+                           ${item.title}
+                       </div>
+                  `).join('');
+             } else {
+                  menu.innerHTML = '<p>Qo\'llab-quvvatlash ma\'lumotlari topilmadi.</p>';
+             }
         }
 
         // Load content into grid
